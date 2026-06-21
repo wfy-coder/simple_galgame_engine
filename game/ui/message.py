@@ -4,7 +4,7 @@ from game.config import Display
 
 
 class Message:
-    def __init__(self, screen):
+    def __init__(self, screen) -> None:
         self.msg: str | None = "请输入文本"
         self.x: int = 0
         self.y: int = 0
@@ -17,7 +17,7 @@ class Message:
         self.atas: bool = True
         self.font: str = Display.FONT
 
-    def show(self):
+    def show(self) -> None:
         message = pygame.font.SysFont(self.font, self.size).render(
             self.msg, self.atas, self.color
         )

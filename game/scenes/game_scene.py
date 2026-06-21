@@ -7,11 +7,14 @@ from game.config import GameStatus
 from game.scenes.base_scene import BaseScene
 from game.scenes.manage_scene import SceneManager
 from game.scenes.sequences.dialog_scene import DialogScene
+from game.scenes.sequences.choice_scene import ChoiceScene
+from game.scenes.sequences.end_scene import EndScene
 from game.scenes.sequences.transition_scene import TransitionScene
 
 
+from typing import Optional
 class GameScenes(BaseScene):
-    def __init__(self, screen):
+    def __init__(self, screen) -> None:
         self.screen = screen
         self.solve = Solver()
 
@@ -19,11 +22,13 @@ class GameScenes(BaseScene):
 
         self.manage_scene.register("transition", TransitionScene(screen))
         self.manage_scene.register("dialog", DialogScene(screen))
-        self.manage_scene.register("choice", TransitionScene(screen))
+        self.manage_scene.register("choice", ChoiceScene(screen))
+        self.manage_scene.register("end", EndScene(screen))
 
-    def enter(self):
+    def enter(self) -> None:
         game_process = saved.load()
         GameStatus.GAMESTATES = game_process
+        GameStatus.GAMESTATES.current_stage_dialog -= 1
         GameStatus.FIGURE_IMAGE = ImageLoad.load_all_figure()
 
         next_scene = self.solve.next()
@@ -31,9 +36,9 @@ class GameScenes(BaseScene):
             saved.save(GameStatus.GAMESTATES)
             self.manage_scene.switch(next_scene)
 
-    def update(self):
+    def update(self) -> Optional[str]:
         GameStatus.GAMESTATES.time = time.time()
-        self.manage_scene.update()
+        return self.manage_scene.update()
 
-    def draw(self):
+    def draw(self) -> None:
         self.manage_scene.draw()

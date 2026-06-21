@@ -1,42 +1,77 @@
+import time
+import textwrap
+import pygame
+from game.interpreter import ImageLoad
 from game.interpreter.solver import Solver
 from game.scenes import BaseScene
 from game.saves import saved
-from game.config import GameStatus
+from game.config import Display, GameStatus
+from game.ui.message import Message
 
 
 class DialogScene(BaseScene):
-    def __init__(self, screen):
-        # 你可能要用到的参数:
-        # GameStatus.FIGURE_IMAGE:这个变量加载了全部人像,类型为Dict{str:pygame.Surface}
-        # GameStatus.GAMESTATES.current_show_name:这个变量包含了现在需要显示的人物姓名,类型str
-        # GameStatus.GAMESTATES.current_show_text:这个变量包含了现在需要显示的对话内容,类型str
-        # GameStatus.GAMESTATES.current_background:这个变量包含了现在需要显示的背景,类型str
-        # GameStatus.GAMESTATES.current_figure:这个变量包含了现在需要显示的人像名字,类型str
-        self.screen = screen
-        self.solve = Solver()
+    def __init__(self, screen) -> None:
+        self.screen: pygame.Surface = screen
+        self.figure_image: pygame.Surface | None = None
+        self.background_image = None
+        self.dialog_ui = ImageLoad.load_ui("dialog.png")
+        self.solve: Solver = Solver()
 
-    def enter(self):
-        # 这里负责管理进入到事件
-        pass
+    def enter(self) -> None:
+        self.is_mouse_press = False
+        if GameStatus.GAMESTATES.current_show_name:
+            current_show_name = GameStatus.GAMESTATES.current_show_name
+            figure_image_text = (
+                current_show_name + "_" + GameStatus.GAMESTATES.current_figure
+            )
+            self.figure_image = GameStatus.FIGURE_IMAGE[figure_image_text]
 
-    def exit(self):
-        # 这里负责实现退出的事件
-        # dialog退出是没有动画的,所以可以不用管这个函数
-        # 不建议更改这个函数
-        next_scene = self.solve.next()
-        if next_scene != "none":
-            saved.save(GameStatus.GAMESTATES)
-            return next_scene
+        self.background_image = ImageLoad.load_background(
+            GameStatus.GAMESTATES.current_background
+        )
 
-    def update(self):
-        # 这里负责管理刷新
-        # 你需要在这里实现检查是否按键点击，点击后就进入下一个场景
-        # 如果返回None就什么都不会发生
-        return (
-            self.exit()
-        )  # 注意，这里返回self.exit()就会进入下一个场景，你需要加入判断条件
+        self.show_name_msg = Message(self.screen)
+        self.show_name_msg.msg = GameStatus.GAMESTATES.current_show_name
+        self.show_name_msg.x = 300
+        self.show_name_msg.y = 580
+        self.show_name_msg.size = 45
+        self.show_name_msg.color = (232, 242, 252)
+        self.show_name_msg.center = True
 
-    def draw(self):
-        # 这里负责与绘画有关的事件
-        # 你需要在这里添加show,blit等需要显示的
-        pass
+    def update(self) -> str:
+        if self.is_mouse_press:
+            time.sleep(0.1)
+            pygame.event.clear()
+            next_scene = self.solve.next()
+            if next_scene != "none":
+                saved.save(GameStatus.GAMESTATES)
+                return next_scene
+        else:
+            self.is_mouse_press = pygame.mouse.get_pressed()[0]
+
+    def draw(self) -> None:
+        if self.background_image:
+            self.screen.blit(self.background_image, (0, 0))
+        if self.figure_image:
+            self.screen.blit(self.figure_image, (800, 130))
+        self.screen.blit(self.dialog_ui, (150, 550))
+
+        self.show_name_msg.show()
+        self.show_text_eachline()
+
+    def show_text_eachline(self) -> None:
+        line = 0
+        show_text_list = []
+        if isinstance(GameStatus.GAMESTATES.current_show_text, str):
+            text = GameStatus.GAMESTATES.current_show_text
+            text = "\n".join(textwrap.wrap(text, width=Display.FONT_WIDTH))
+            show_text_list = text.split("\n")
+        for show_text in show_text_list:
+            show_text_msg = Message(self.screen)
+            show_text_msg.msg = show_text
+            show_text_msg.x = 200
+            show_text_msg.y = 620 + line * 41
+            show_text_msg.size = 40
+            show_text_msg.color = (0, 0, 0)
+            show_text_msg.show()
+            line += 1

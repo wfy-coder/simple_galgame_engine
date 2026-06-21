@@ -9,7 +9,7 @@ from game.scenes.game_scene import GameScenes
 
 
 class Game(object):
-    def __init__(self, screen):
+    def __init__(self, screen) -> None:
         self.screen = screen
         self.running = True
         self.clock = pygame.time.Clock()
@@ -22,19 +22,19 @@ class Game(object):
 
         self.scene_manager.switch("title")
 
-    def handle_events(self):
+    def handle_events(self) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-    def update(self):
+    def update(self) -> None:
         self.scene_manager.update()
 
-    def draw(self):
+    def draw(self) -> None:
         self.scene_manager.draw()
         pygame.display.flip()
 
-    def run(self):
+    def run(self) -> None:
         while self.running:
             self.handle_events()
             self.update()

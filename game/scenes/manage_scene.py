@@ -4,16 +4,15 @@ from game.scenes.base_scene import BaseScene
 
 
 class SceneManager:
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface) -> None:
         self.screen: pygame.Surface = screen
         self.scenes: Dict[str, BaseScene] = {}
         self.current_scene: BaseScene | None = None
 
-    def register(self, name: str, scene: BaseScene):
+    def register(self, name: str, scene: BaseScene) -> None:
         self.scenes[name] = scene
 
-    def switch(self, name: str):
-        print(name)
+    def switch(self, name: str) -> None:
         if self.current_scene:
             self.current_scene.exit()
 
@@ -22,11 +21,11 @@ class SceneManager:
         if self.current_scene:
             self.current_scene.enter()
 
-    def draw(self):
+    def draw(self) -> None:
         if self.current_scene:
             self.current_scene.draw()
 
-    def update(self):
+    def update(self) -> None:
         if self.current_scene:
             result = self.current_scene.update()
             if result:

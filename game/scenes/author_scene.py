@@ -3,10 +3,10 @@ from game.ui.message import Message
 
 
 class AuthorScene(BaseScene):
-    def enter(self):
+    def enter(self) -> None:
         pass
 
-    def draw(self):
+    def draw(self) -> None:
         msg = Message(self.screen)
         msg.msg = "开发者:4564564"
         msg.x = 200

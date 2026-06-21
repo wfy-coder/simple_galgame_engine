@@ -7,6 +7,7 @@ class Display:
     FPS = 60
     WIDTH = 1500
     HEIGHT = 843
+    FONT_WIDTH = 28
     TITLE = "galgame模板"
     FONT = "wenquanyizenhei"
     FONT_WIDTH_FIX = {"—": 2, "…": 2}
